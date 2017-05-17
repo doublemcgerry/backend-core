@@ -31,7 +31,7 @@ public class SoftwareOptionCollection extends ArrayList<SoftwareOption> {
 			e.printStackTrace();
 		}
 	}
-	public boolean Contains(String optionName){
+	public boolean contains(String optionName){
 		for (int i = 0; i < this.size(); i++) {
 			if (this.get(i).getName().toLowerCase().equals(optionName.toLowerCase())) {
 				return true;
@@ -39,21 +39,17 @@ public class SoftwareOptionCollection extends ArrayList<SoftwareOption> {
 		}
 		return false;
 	}
-	public SoftwareOption get(String optionName) throws Exception{
+	public SoftwareOption get(String optionName){
 		for (int i = 0; i < this.size(); i++) {
 			if ((this.get(i).getName().toLowerCase().equals((optionName.toLowerCase())))) {
 				return this.get(i);
 			}
 		}
-		throw new Exception("Option" +  optionName + " not found!");
+		throw new RuntimeException("Option" +  optionName + " not found!");
 	}
 	public SoftwareOption add(String name, String type, String value){
-		if (Contains(name)) {
-                        try {
-                            return get(name).setType(type).setValue(value);
-                        } catch (Exception ex) {
-                            return null;
-                        }
+		if (contains(name)) {
+           return get(name).setType(type).setValue(value);  
 		}else{
 			SoftwareOption so= SoftwareOption.Create(doc.getFirstChild(), name , type, value);
 			this.add(so);

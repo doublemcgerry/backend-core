@@ -102,14 +102,12 @@ public class SoftwareOptionsReader {
 	}
 
 	public void setValue(String name, String value) {
-		try {
+		if (soc.contains(name)){
+			soc.add(name, "string", value);
+		}else{
 			soc.get(name).setValue(value);
-			SaveOptions();
-		} catch (Exception e) {
-
-			e.printStackTrace();
 		}
-
+		SaveOptions();
 	}
 
 }
