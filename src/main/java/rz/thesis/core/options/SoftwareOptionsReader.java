@@ -102,7 +102,7 @@ public class SoftwareOptionsReader {
 	}
 
 	public void setValue(String name, String value) {
-		if (soc.contains(name)){
+		if (!soc.contains(name)){
 			soc.add(name, "string", value);
 		}else{
 			soc.get(name).setValue(value);
