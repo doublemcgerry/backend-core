@@ -1,5 +1,6 @@
 package rz.thesis.core.save;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -20,6 +21,19 @@ public class SaveModuleTest {
 	private static Core core;
 	@ClassRule
 	public static TemporaryFolder tempFolder = new TemporaryFolder();
+
+	public static class TestSettings extends PersistentSettings {
+		private int val;
+
+		public TestSettings(int val) {
+			this.val = val;
+		}
+
+		public int getVal() {
+			return val;
+		}
+
+	}
 
 	@BeforeClass
 	public static void before() {
@@ -58,16 +72,52 @@ public class SaveModuleTest {
 	public void testLoadFileFromDisk() {
 		String sectionName = "sectionName";
 		SaveModule saveModule = core.getModule(SaveModule.class);
-		PersistentSettings settings = new PersistentSettings() {
+		PersistentSettings settings = new PersistentSettings(10) {
 			private static final long serialVersionUID = 1L;
 
 		};
-
 		assertNull(saveModule.getSection(sectionName, settings.getClass()));
 		saveModule.setSectionObject(sectionName, settings);
 		saveModule.saveSection(sectionName);
 		assertTrue(new File(tempFolder.getRoot(), sectionName).exists());
 
+	}
+
+	@Test
+	public void testReloadFileFromDiskAfterExternalDelete() {
+		String sectionName = "sectionName2";
+		SaveModule saveModule = core.getModule(SaveModule.class);
+		PersistentSettings settings = new PersistentSettings(10) {
+			private static final long serialVersionUID = 1L;
+		};
+		assertNull(saveModule.getSection(sectionName, settings.getClass()));
+
+		saveModule.setSectionObject(sectionName, settings);
+		saveModule.saveSection(sectionName);
+		File realFile = new File(tempFolder.getRoot(), sectionName);
+		assertTrue(realFile.exists());
+		realFile.delete();
+		try {
+			saveModule.reloadSectionFromDisk(sectionName);
+			assertTrue(false);
+		} catch (Exception e) {
+
+		}
+	}
+
+	@Test
+	public void testReloadFileFromDiskNormalUsage() {
+		String sectionName = "sectionName3";
+		SaveModule saveModule = core.getModule(SaveModule.class);
+		PersistentSettingsTempClass settings = new PersistentSettingsTempClass();
+		assertNull(saveModule.getSection(sectionName, PersistentSettingsTempClass.class));
+		saveModule.setSectionObject(sectionName, settings);
+		saveModule.saveSection(sectionName);
+		File realFile = new File(tempFolder.getRoot(), sectionName);
+		assertTrue(realFile.exists());
+		saveModule.reloadSectionFromDisk(sectionName);
+		PersistentSettings settingsFromDisk = saveModule.getSection(sectionName, PersistentSettingsTempClass.class);
+		assertEquals(settings.getVersion(), settingsFromDisk.getVersion());
 	}
 
 }

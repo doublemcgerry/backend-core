@@ -1,4 +1,5 @@
 package rz.thesis.core.serialization;
+
 import java.lang.reflect.Type;
 
 import com.google.gson.JsonDeserializationContext;
@@ -16,38 +17,39 @@ import com.google.gson.JsonSerializer;
  * 
  * @author Andrea
  *
- * @param <T> Abstract class of which there is the need to create a custom serializer
+ * @param <T>
+ *            Abstract class of which there is the need to create a custom
+ *            serializer
  */
 public class SerializerAdapter<T> implements JsonSerializer<T>, JsonDeserializer<T> {
 
-    private static final String CLASSNAME = "CLASSNAME";
-    private static final String SIMPLENAME = "SIMPLENAME";
-    private static final String INSTANCE = "INSTANCE";
+	private static final String CLASSNAME = "CLASSNAME";
+	private static final String SIMPLENAME = "SIMPLENAME";
+	private static final String INSTANCE = "INSTANCE";
 
-    @Override
-    public JsonElement serialize(T src, Type typeOfSrc, JsonSerializationContext context) {
-        JsonObject retValue = new JsonObject();
-        String className = src.getClass().getCanonicalName();
-        retValue.addProperty(CLASSNAME, className);
-        retValue.addProperty(SIMPLENAME, src.getClass().getSimpleName());
-        JsonElement elem = context.serialize(src);
-        retValue.add(INSTANCE, elem);
-        return retValue;
-    }
+	@Override
+	public JsonElement serialize(T src, Type typeOfSrc, JsonSerializationContext context) {
+		JsonObject retValue = new JsonObject();
+		String className = src.getClass().getCanonicalName();
+		retValue.addProperty(CLASSNAME, className);
+		retValue.addProperty(SIMPLENAME, src.getClass().getSimpleName());
+		JsonElement elem = context.serialize(src);
+		retValue.add(INSTANCE, elem);
+		return retValue;
+	}
 
-    @Override
-    public T deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-             {
-        JsonObject jsonObject = json.getAsJsonObject();
-        JsonPrimitive prim = (JsonPrimitive) jsonObject.get(CLASSNAME);
-        String className = prim.getAsString();
+	@Override
+	public T deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) {
+		JsonObject jsonObject = json.getAsJsonObject();
+		JsonPrimitive prim = (JsonPrimitive) jsonObject.get(CLASSNAME);
+		String className = prim.getAsString();
 
-        Class<?> klass = null;
-        try {
-            klass = Class.forName(className);
-        } catch (ClassNotFoundException e) {
-            throw new JsonParseException(e.getMessage(),e);
-        }
-        return context.deserialize(jsonObject.get(INSTANCE), klass);
-    }
+		Class<?> klass = null;
+		try {
+			klass = Class.forName(className);
+		} catch (ClassNotFoundException e) {
+			throw new JsonParseException(e.getMessage(), e);
+		}
+		return context.deserialize(jsonObject.get(INSTANCE), klass);
+	}
 }
