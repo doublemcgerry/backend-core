@@ -3,14 +3,16 @@ package rz.thesis.core.options;
 import java.io.File;
 import java.io.IOException;
 
-import javax.xml.parsers.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.w3c.dom.*;
+import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
 public class SoftwareOptionsReader {
@@ -47,6 +49,7 @@ public class SoftwareOptionsReader {
 				TransformerFactory transformerFactory = TransformerFactory.newInstance();
 				Transformer transformer = transformerFactory.newTransformer();
 				DOMSource source = new DOMSource(doc);
+				OptionsFile.createNewFile();
 				StreamResult result = new StreamResult(OptionsFile);
 				transformer.transform(source, result);
 			} catch (ParserConfigurationException e) {
@@ -54,6 +57,9 @@ public class SoftwareOptionsReader {
 				e.printStackTrace();
 			} catch (TransformerException e) {
 
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
@@ -102,9 +108,9 @@ public class SoftwareOptionsReader {
 	}
 
 	public void setValue(String name, String value) {
-		if (!soc.contains(name)){
+		if (!soc.contains(name)) {
 			soc.add(name, "string", value);
-		}else{
+		} else {
 			soc.get(name).setValue(value);
 		}
 		SaveOptions();

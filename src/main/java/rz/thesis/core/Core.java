@@ -1,6 +1,5 @@
 package rz.thesis.core;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,17 +7,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.UUID;
 
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Logger;
 
 import rz.thesis.core.modules.CoreDependency;
+import rz.thesis.core.modules.CoreDependency.CoreDependencyType;
 import rz.thesis.core.modules.CoreModule;
 import rz.thesis.core.modules.CoreModuleContainer;
 import rz.thesis.core.modules.CoreModuleState;
 import rz.thesis.core.modules.ServiceDefinition;
-import rz.thesis.core.modules.CoreDependency.CoreDependencyType;
 import rz.thesis.core.options.SoftwareOptionsReader;
 import rz.thesis.core.save.SaveModule;
 
@@ -29,12 +27,11 @@ import rz.thesis.core.save.SaveModule;
 public class Core {
 
 	/**
-	 * Software options container Contains all the options from config.xml Can
-	 * add new options by using add and get methods
+	 * Software options container Contains all the options from config.xml Can add
+	 * new options by using add and get methods
 	 */
 	private SoftwareOptionsReader sor; // options container
 
-	private DiskLogger fileLogger;
 	private Logger log;
 	private boolean enableLog = true;
 	private boolean enableQueueLog = true;
@@ -44,44 +41,17 @@ public class Core {
 
 	private SaveModule saveModule;
 
-	public enum BusOperationType {
-
-		syncread(1), syncwrite(2), queueread(3), queuewrite(4), confwrite_groupread(5), confwrite_groupresponse(
-				6), confwrite_groupwrite(7), info_groupread(8), info_groupresponse(9), info_groupwrite(10), timeout(
-						11), syncread_done(21), syncwrite_done(22), queueread_done(
-								23), queuewrite_done(24), error(98), message(99), version(100), None(101);
-		private int value;
-
-		public int GetValue() {
-			return value;
-		}
-
-		public boolean IsEmpty() {
-			return this.equals(BusOperationType.None);
-		}
-
-		public boolean Compare(int i) {
-			return value == i;
-		}
-
-		private BusOperationType(int value) {
-			this.value = value;
-		}
-	}
-
 	public Core(SoftwareOptionsReader optionsReader, String includeFolder, AppenderSkeleton appender) {
 		log = Logger.getLogger(Core.class);
-		// log.addAppender(appender);
+		log.addAppender(appender);
 		init(optionsReader, includeFolder);
 	}
 
-	public void init(SoftwareOptionsReader optionsReader, String includeFolder) {
+	private void init(SoftwareOptionsReader optionsReader, String includeFolder) {
 
 		// log.debug("Core initialization! BUILD:" + getBuildNumber());
 		this.includefolder = includeFolder;
 		sor = optionsReader;
-		setFileLogger(new DiskLogger(this, new File(optionsReader.getValue("projectFolder", ""), "debug.txt")));
-		setDefaultOptions();
 
 		log.debug("Using folder:" + optionsReader.getValue("projectFolder", "<current folder>"));
 
@@ -187,18 +157,6 @@ public class Core {
 		}
 	}
 
-	/**
-	 * called if the config.xml file is not found
-	 */
-	private void setDefaultOptions() {
-
-		sor.getValue("sqladdr", "127.0.0.1");
-		sor.getValue("sqluser", "vis-user");
-		sor.getValue("sqlpass", "CHt7yLmFnLYbB2HV");
-
-		sor.SaveOptions();
-	}
-
 	public String getProjectFolder() {
 		return this.sor.getValue("projectFolder");
 	}
@@ -209,8 +167,8 @@ public class Core {
 
 	/**
 	 * Adds the module to the repository, the name is retrieved from the name
-	 * property of the module itself BEWARE, ON DUPLICATE NAME, THE PRESENT ONE
-	 * WILL BE OVERWRITTEN
+	 * property of the module itself BEWARE, ON DUPLICATE NAME, THE PRESENT ONE WILL
+	 * BE OVERWRITTEN
 	 * 
 	 * @param module
 	 *            the module to add to the repo
@@ -260,9 +218,8 @@ public class Core {
 	}
 
 	/**
-	 * Retrieves the service definitions for each module, those service
-	 * definitions contains the information of the module and port that the
-	 * modules listens to
+	 * Retrieves the service definitions for each module, those service definitions
+	 * contains the information of the module and port that the modules listens to
 	 * 
 	 * @return
 	 */
@@ -297,21 +254,8 @@ public class Core {
 	}
 
 	/**
-	 * restarts the software
-	 */
-	public void softwareRestart() {
-		try {
-			ProcessBuilder pb = new ProcessBuilder("/java/restartjava");
-			pb.directory(new File("/java/"));
-			pb.start();
-		} catch (IOException ex) {
-			ex.printStackTrace();
-		}
-	}
-
-	/**
-	 * returns the build number read from the file version.properties this
-	 * number is auto-incremented by the builder
+	 * returns the build number read from the file version.properties this number is
+	 * auto-incremented by the builder
 	 *
 	 * @return
 	 */
@@ -347,10 +291,6 @@ public class Core {
 
 	public boolean isQueueLogEnabled() {
 		return enableQueueLog;
-	}
-
-	private void setFileLogger(DiskLogger fileLogger) {
-		this.fileLogger = fileLogger;
 	}
 
 	public SoftwareOptionsReader getSoftwareOptionsReader() {
